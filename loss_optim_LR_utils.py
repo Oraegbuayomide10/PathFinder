@@ -3,6 +3,7 @@ from functools import partial
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 
 
@@ -88,6 +89,11 @@ def weights_init(net, init_type='normal', init_gain=0.02):
     print('initialize network with %s type' % init_type)
     net.apply(init_func)
 
+
+def get_lr(optimizer):
+    for param_group in optimizer.param_groups:
+        return param_group['lr']
+
 def get_lr_scheduler(lr_decay_type, lr, min_lr, total_iters, warmup_iters_ratio = 0.1, warmup_lr_ratio = 0.1, no_aug_iter_ratio = 0.3, step_num = 10):
     def yolox_warm_cos_lr(lr, min_lr, total_iters, warmup_total_iters, warmup_lr_start, no_aug_iter, iters):
         if iters <= warmup_total_iters:
@@ -146,6 +152,110 @@ def f_score(inputs, target, beta=1, smooth = 1e-5, threhold = 0.5):
     score = ((1 + beta ** 2) * tp + smooth) / ((1 + beta ** 2) * tp + beta ** 2 * fn + fp + smooth)
     score = torch.mean(score)
     return score
+
+
+
+
+def MIoU(predictions, targets, num_classes=2, eps=1e-7):
+    """
+    Calculate Mean Intersection over Union (MIoU)
+    
+    Args:
+        predictions: Model predictions tensor of shape (N, C, H, W)
+        targets: Ground truth tensor of shape (N, H, W)
+        num_classes: Number of classes (default=2 for binary segmentation)
+        eps: Small value to avoid division by zero
+        
+    Returns:
+        miou: Mean IoU across all classes
+        class_ious: IoU for each class
+    """
+    # Convert predictions to class indices
+    predictions = torch.argmax(predictions, dim=1)  # (N, H, W)
+    
+    # Initialize confusion matrix
+    conf_matrix = torch.zeros((num_classes, num_classes), device=predictions.device)
+    
+    # Flatten predictions and targets
+    pred_flat = predictions.view(-1)
+    target_flat = targets.view(-1)
+    
+    # Calculate confusion matrix
+    for i in range(num_classes):
+        for j in range(num_classes):
+            conf_matrix[i, j] = torch.sum((pred_flat == i) & (target_flat == j))
+            
+    # Calculate IoU for each class
+    class_ious = torch.zeros(num_classes, device=predictions.device)
+    for i in range(num_classes):
+        intersection = conf_matrix[i, i]
+        union = (torch.sum(conf_matrix[i, :]) + 
+                torch.sum(conf_matrix[:, i]) - 
+                conf_matrix[i, i])
+        class_ious[i] = (intersection + eps) / (union + eps)
+    
+    # Calculate mean IoU
+    miou = torch.mean(class_ious)
+    
+    return miou
+
+
+
+
+
+def precision_recall_f1(predictions, targets, num_classes=2, eps=1e-7):
+    """
+    Calculate Mean Precision, Mean Recall, and Mean F1-Score for a segmentation task
+    
+    Args:
+        predictions: Model predictions tensor of shape (N, C, H, W)
+        targets: Ground truth tensor of shape (N, H, W)
+        num_classes: Number of classes (default=2 for binary segmentation)
+        eps: Small value to avoid division by zero
+        
+    Returns:
+        mean_precision: Mean Precision across all classes
+        mean_recall: Mean Recall across all classes
+        mean_f1_score: Mean F1-Score across all classes
+    """
+    # Convert predictions to class indices
+    predictions = torch.argmax(predictions, dim=1)  # (N, H, W)
+    
+    # Initialize confusion matrix
+    conf_matrix = torch.zeros((num_classes, num_classes), device=predictions.device)
+    
+    # Flatten predictions and targets
+    pred_flat = predictions.view(-1)
+    target_flat = targets.view(-1)
+    
+    # Calculate confusion matrix
+    for i in range(num_classes):
+        for j in range(num_classes):
+            conf_matrix[i, j] = torch.sum((pred_flat == i) & (target_flat == j))
+    
+    # Calculate precision, recall, and F1-score for each class
+    precision = torch.zeros(num_classes, device=predictions.device)
+    recall = torch.zeros(num_classes, device=predictions.device)
+    f1_score = torch.zeros(num_classes, device=predictions.device)
+    
+    for i in range(num_classes):
+        TP = conf_matrix[i, i]
+        FP = torch.sum(conf_matrix[:, i]) - TP
+        FN = torch.sum(conf_matrix[i, :]) - TP
+        
+        # Calculate Precision and Recall for the current class
+        precision[i] = (TP + eps) / (TP + FP + eps)
+        recall[i] = (TP + eps) / (TP + FN + eps)
+        
+        # Calculate F1-Score for the current class
+        f1_score[i] = 2 * (precision[i] * recall[i]) / (precision[i] + recall[i] + eps)
+    
+    # Calculate mean precision, mean recall, and mean F1-Score
+    mean_precision = torch.mean(precision)
+    mean_recall = torch.mean(recall)
+    mean_f1_score = torch.mean(f1_score)
+    
+    return mean_precision.item(), mean_recall.item(), mean_f1_score.item()
 
 
 

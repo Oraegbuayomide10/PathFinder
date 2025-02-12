@@ -6,6 +6,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.functional import max_pool2d
 from backbone import mit_b0, mit_b1, mit_b2, mit_b3,mit_b4, mit_b5
 
 
@@ -26,6 +27,13 @@ class SELayer(nn.Module):
         y = self.avg_pool(x).view(b, c)
         y = self.fc(y).view(b, c, 1, 1)
         return x * y.expand_as(x)
+    
+
+
+    
+
+
+
 
 class Connect(nn.Module):
     def __init__(self, num_classes, num_neighbor, embedding_dim=768,reduction=3,dropout_ratio=0.1):
@@ -39,6 +47,7 @@ class Connect(nn.Module):
         self.connect_branch = nn.Sequential(nn.Conv2d(embedding_dim, 64, 3, stride=1, padding=1),
                                         nn.ReLU(),
                                         nn.Conv2d(64, num_neighbor, 3, padding=1, dilation=1),
+                                            
                                             )
         self.se = SELayer(num_neighbor, reduction)
 
@@ -47,6 +56,8 @@ class Connect(nn.Module):
                                             nn.Conv2d(64, num_neighbor, 3, padding=3, dilation=3),
                                                )
         self.se_d1 = SELayer(num_neighbor, reduction)
+
+
 
         # self.linear_pred = nn.Conv2d(embedding_dim, num_classes, kernel_size=1)
         # self.dropout = nn.Dropout2d(dropout_ratio)

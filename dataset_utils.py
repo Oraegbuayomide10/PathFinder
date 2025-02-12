@@ -26,15 +26,28 @@ class SegmentationDataset(Dataset):
 
     def __getitem__(self, index):
         image_name = self.images_list[index]
-        splitted_name = image_name.split('_')
-        mask_name = splitted_name[0] + '_mask.png' 
-       
 
+
+        # split the image_name as it contains the full_path
+        splitted_basename = os.path.splitext(os.path.basename(image_name))[0]
+
+        # check if 'SN3' is not in the splitted_img_name, and if so load it a different way 
+        if 'SN3' not in splitted_basename:
+            splitted_name = splitted_basename.split('_')
+            mask_name = splitted_name[0] + '_mask.png' 
+        else:
+            mask_name = splitted_basename + '.png'
+
+        dir_name = os.path.dirname(image_name)
+       
+  
         #-------------------------------#
         #   Read the image from the file
         #-------------------------------#
-        jpg         = Image.open(os.path.join(self.images_directory, image_name))
-        png         = Image.open(os.path.join(self.labels_directory, mask_name))
+        jpg         = Image.open(image_name)
+        png         = Image.open(os.path.join(dir_name, mask_name))
+
+        
 
 
         #-------------------------------#

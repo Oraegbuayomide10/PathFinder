@@ -3,15 +3,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
-from loss_optim_LR_utils import Dice_loss, Focal_Loss, ConLoss, f_score, CE_Loss
+from loss_optim_LR_utils import Dice_loss, Focal_Loss, ConLoss, f_score, CE_Loss, MIoU
 
 from torch.amp.grad_scaler import GradScaler as GradScaler
-from loss_optim_LR_utils import set_optimizer_lr
+from loss_optim_LR_utils import set_optimizer_lr, get_lr
 
 def train_one_epoch(model, dataloader, optimizer,
                      device, cls_weights, num_classes, scaler, 
                      current_epoch, 
-                    #  lr_scheduler_func, 
                      dice_loss=True,  focal_loss=False, 
                      lad=0.4, use_f16=True,
                      c3_weight = 0.6,
@@ -66,11 +65,9 @@ def train_one_epoch(model, dataloader, optimizer,
     # set model to train mode
     model.train()
     scaler = GradScaler()
-    # set_optimizer_lr(optimizer=optimizer, 
-    #                             lr_scheduler_func=lr_scheduler_func,
-    #                             epoch=current_epoch)
     total_loss = 0
     total_f_score = 0
+    total_MIoU = 0
 
     for iteration, batch in enumerate(tqdm(dataloader, desc="Training", leave=False)):
 
@@ -87,11 +84,14 @@ def train_one_epoch(model, dataloader, optimizer,
         
         # if f16 is used for training
         if use_f16:
-            from torch.cuda.amp import autocast
             with torch.amp.autocast(device):
 
                 # Forward pass
                 outputs, r1, r3 = model(imgs)
+
+                 # MIoU loss for plot
+                MIoU_loss = MIoU(outputs, pngs, num_classes=2).item()
+
 
                 # Main loss (CE or Focal)
                 if focal_loss:
@@ -118,6 +118,9 @@ def train_one_epoch(model, dataloader, optimizer,
             # Forward pass
             outputs, r1, r3 = model(imgs)
 
+            # MIoU loss for plot
+            MIoU_loss = MIoU(outputs, pngs, num_classes=2).item()
+
             # Main loss (CE or Focal)
             if focal_loss:
                 loss = Focal_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
@@ -126,26 +129,20 @@ def train_one_epoch(model, dataloader, optimizer,
                 # loss = 0.8 * loss # according to the spacenet model
 
             # Dice Loss if specified
-            if dice_loss:
-                dice = Dice_loss(outputs, labels)
-                loss += dice
+            # if dice_loss:
+            #     dice = Dice_loss(outputs, labels)
+            #     loss = loss + dice
 
             # Contrastive losses
-            c1_loss = ConLoss(r1, con_1)
-            c3_loss = ConLoss(r3, con_3)
-
-            # print(f'loss before adding LAD: {loss:.4f}')
+            # c1_loss = ConLoss(r1, con_1)
+            # c3_loss = ConLoss(r3, con_3)
 
             # Total loss with lad factor
-            loss += lad * (0.7 * c3_loss + 0.3 * c1_loss)
+            # loss = loss + 0.4 * (0.6 * c3_loss + 0.4 * c1_loss)
+            # loss = loss + 0.7 * (0.7 * c3_loss + 0.3 * c1_loss) # my own conloss  
 
-            # print(f'loss after adding LAD: {loss:.4f}')
 
 
-            with torch.no_grad():
-                # f-score between output and labels- this score is just for visualisation and not use in backpropagation
-                f_score_value = f_score(outputs, labels).item()
-                
 
             # Backpropagation
             loss.backward()
@@ -153,20 +150,21 @@ def train_one_epoch(model, dataloader, optimizer,
 
 
         total_loss += loss.item()
-        total_f_score += f_score_value
+        total_MIoU += MIoU_loss
 
-    avg_loss = total_loss / iteration + 1
-    avg_f_score = total_f_score / iteration + 1
-    print(f"Training Loss: {avg_loss:.4f}, F-score: {avg_f_score:.4f}")
-    return avg_loss, avg_f_score
-
-
+    avg_loss = total_loss / (iteration + 1)
+    avg_MIoU = total_MIoU / (iteration + 1)
+    print(f"Training Loss: {avg_loss:.4f},  MIoU: {avg_MIoU:.4f}, LR: {get_lr(optimizer)}")
+    return avg_loss, avg_MIoU
 
 
 
 
 
-def validate_one_epoch(model, dataloader, device, cls_weights, num_classes, dice_loss=True, focal_loss=False, lad=0.2):
+
+
+def validate_one_epoch(model, dataloader, device, cls_weights,
+                        num_classes, dice_loss=True, focal_loss=False, lad=0.2):
 
     '''
    Description
@@ -191,6 +189,7 @@ def validate_one_epoch(model, dataloader, device, cls_weights, num_classes, dice
     model.eval()
     val_loss = 0
     val_f_score = 0
+    val_MIoU = 0
 
     # compute no-gradients for the class weights
     with torch.no_grad():
@@ -203,16 +202,20 @@ def validate_one_epoch(model, dataloader, device, cls_weights, num_classes, dice
             # Forward pass
             outputs, r1, r3 = model(imgs)
 
+            # MIoU loss for plot
+            MIoU_loss = MIoU(outputs, pngs, num_classes=2).item()
+
+
             # Main loss (CE or Focal)
             if focal_loss:
                 loss = Focal_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
             else:
                 loss = CE_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
 
-            # Dice Loss if specified
-            if dice_loss:
-                dice = Dice_loss(outputs, labels)
-                loss += dice
+            # # Dice Loss if specified
+            # if dice_loss:
+            #     dice = Dice_loss(outputs, labels)
+            #     loss += dice
 
 
             # # Contrastive losses
@@ -222,17 +225,16 @@ def validate_one_epoch(model, dataloader, device, cls_weights, num_classes, dice
             # # Total loss with lad factor
             # loss += lad * (0.6 * c3_loss + 0.4 * c1_loss)
 
-            f_score_value = f_score(outputs, labels).item()
+       
    
 
             val_loss += loss.item()
-            val_f_score += f_score_value
+            val_MIoU += MIoU_loss
 
-
-    avg_val_loss = val_loss / iteration + 1
-    avg_val_f_score = val_f_score / iteration + 1
-    print(f"Validation Loss: {avg_val_loss:.4f}, F-score: {avg_val_f_score:.4f}")
-    return avg_val_loss, avg_val_f_score
+    avg_val_loss = val_loss / (iteration + 1)
+    avg_val_MIoU = val_MIoU/ (iteration + 1)
+    print(f"Validation Loss: {avg_val_loss:.4f}, MIoU: {avg_val_MIoU:.4f}")
+    return avg_val_loss, avg_val_MIoU
 
 
 
@@ -244,12 +246,11 @@ def train_and_validate(model, train_loader, val_loader,
                         scaler,
                         device, optimizer, num_classes,
                         current_epoch, 
-                        # lr_scheduler_func, 
                         save_log_dir,
                         c3_weight,
                         c1_weight,
                         dice_loss=True, focal_loss=False,
-                        save_period=5, lad=0.4, saved_model_name=None, use_f16=True,):
+                        save_period=5, lad=0.4, use_f16=True,):
     
 
     '''
@@ -275,50 +276,46 @@ def train_and_validate(model, train_loader, val_loader,
             
     '''
     
-    if saved_model_name is None:
-        raise ValueError(f'Specify a name for the model about to be trained!!!!')
-        
-
-    else:
     
-        for epoch in range(num_epochs):
-            print(f"\nEpoch {current_epoch+1}/{total_epochs}")
+    for epoch in range(num_epochs):
+        print(f"\nEpoch {current_epoch+1}/{total_epochs}")
 
-            # Training phase
-            train_loss, train_f_score = train_one_epoch (
-                
-                                                        model=model, 
-                                                        dataloader=train_loader, 
-                                                        optimizer=optimizer,
-                                                        device=device,
-                                                        cls_weights = cls_weights,
-                                                        num_classes = num_classes,
-                                                        scaler = scaler, 
-                                                      
-                                                        current_epoch = current_epoch,
-                                                        # lr_scheduler_func = lr_scheduler_func, 
-                                                        dice_loss=dice_loss, focal_loss=focal_loss, 
-                                                        lad=lad, use_f16=use_f16,
-                                                        c3_weight = c3_weight,
-                                                        c1_weight = c1_weight,
-                                                         
-                                                     
-                                        )
+        # Training phase
+        train_loss, train_MIoU = train_one_epoch (
+            
+                                                    model=model, 
+                                                    dataloader=train_loader, 
+                                                    optimizer=optimizer,
+                                                    device=device,
+                                                    cls_weights = cls_weights,
+                                                    num_classes = num_classes,
+                                                    scaler = scaler,
+                                                    current_epoch = current_epoch,
+                                                    dice_loss=dice_loss, 
+                                                    focal_loss=focal_loss, 
+                                                    lad=lad, use_f16=use_f16,
+                                                    c3_weight = c3_weight,
+                                                    c1_weight = c1_weight,
+                                                        
+                                                    
+                                    )
 
-            # Validation phase
-            val_loss, val_f_score = validate_one_epoch(model=model, 
-                                                       dataloader=val_loader, 
-                                                       device = device,
-                                                       cls_weights=cls_weights,
-                                                       num_classes=num_classes,
-                                                       focal_loss=focal_loss,
-                                                       dice_loss=dice_loss,
-                                                       lad=lad
-                                                       )
+        # Validation phase
+        val_loss, val_MIoU = validate_one_epoch(model=model, 
+                                                    dataloader=val_loader, 
+                                                    device = device,
+                                                    cls_weights=cls_weights,
+                                                    num_classes=num_classes,
+                                                    focal_loss=focal_loss,
+                                                    dice_loss=dice_loss,
+                                                    lad=lad,
+            
+
+                                                    )
             
 
 
-    return model, train_loss, val_loss, train_f_score, val_f_score          
+    return model, train_loss, val_loss, train_MIoU, val_MIoU       
         
 
     
