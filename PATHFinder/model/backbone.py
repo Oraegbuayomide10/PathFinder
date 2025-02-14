@@ -98,10 +98,7 @@ def trunc_normal_(tensor, mean=0., std=1., a=-2., b=2.):
     """
     return _no_grad_trunc_normal_(tensor, mean, std, a, b)
 
-#--------------------------------------#
-#   Gelu激活函数的实现
-#   利用近似的数学公式
-#--------------------------------------#
+
 class GELU(nn.Module):
     def __init__(self):
         super(GELU, self).__init__()
@@ -142,17 +139,7 @@ class OverlapPatchEmbed(nn.Module):
 
         return x, H, W
 
-#--------------------------------------------------------------------------------------------------------------------#
-#   Attention机制
-#   将输入的特征qkv特征进行划分，首先生成query, key, value。query是查询向量、key是键向量、v是值向量。
-#   然后利用 查询向量query 叉乘 转置后的键向量key，这一步可以通俗的理解为，利用查询向量去查询序列的特征，获得序列每个部分的重要程度score。
-#   然后利用 score 叉乘 value，这一步可以通俗的理解为，将序列每个部分的重要程度重新施加到序列的值上去。
-#   
-#   在segformer中，为了减少计算量，首先对特征图进行了浓缩，所有特征层都压缩到原图的1/32。
-#   当输入图片为512, 512时，Block1的特征图为128, 128，此时就先将特征层压缩为16, 16。
-#   在Block1的Attention模块中，相当于将8x8个特征点进行特征浓缩，浓缩为一个特征点。
-#   然后利用128x128个查询向量对16x16个键向量与值向量进行查询。尽管键向量与值向量的数量较少，但因为查询向量的不同，依然可以获得不同的输出。
-#--------------------------------------------------------------------------------------------------------------------#
+
 class Attention(nn.Module):
     def __init__(self, dim, num_heads=8, qkv_bias=False, qk_scale=None, attn_drop=0., proj_drop=0., sr_ratio=1):
         super().__init__()
@@ -349,23 +336,14 @@ class MixVisionTransformer(nn.Module):
         self.num_classes    = num_classes
         self.depths         = depths
 
-        #----------------------------------#
-        #   Transformer模块，共有四个部分
-        #----------------------------------#
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))]
         
         #----------------------------------#
         #   block1
         #----------------------------------#
         #-----------------------------------------------#
-        #   对输入图像进行分区，并下采样
-        #   512, 512, 3 => 128, 128, 32 => 16384, 32
-        #-----------------------------------------------#
         self.patch_embed1 = OverlapPatchEmbed(patch_size=7, stride=4, in_chans=in_chans, embed_dim=embed_dims[0])
-        #-----------------------------------------------#
-        #   利用transformer模块进行特征提取
-        #   16384, 32 => 16384, 32
-        #-----------------------------------------------#
+
         cur = 0
         self.block1 = nn.ModuleList(
             [
@@ -382,14 +360,7 @@ class MixVisionTransformer(nn.Module):
         #   block2
         #----------------------------------#
         #-----------------------------------------------#
-        #   对输入图像进行分区，并下采样
-        #   128, 128, 32 => 64, 64, 64 => 4096, 64
-        #-----------------------------------------------#
         self.patch_embed2 = OverlapPatchEmbed(patch_size=3, stride=2, in_chans=embed_dims[0], embed_dim=embed_dims[1])
-        #-----------------------------------------------#
-        #   利用transformer模块进行特征提取
-        #   4096, 64 => 4096, 64
-        #-----------------------------------------------#
         cur += depths[0]
         self.block2 = nn.ModuleList(
             [
@@ -405,15 +376,7 @@ class MixVisionTransformer(nn.Module):
         #----------------------------------#
         #   block3
         #----------------------------------#
-        #-----------------------------------------------#
-        #   对输入图像进行分区，并下采样
-        #   64, 64, 64 => 32, 32, 160 => 1024, 160
-        #-----------------------------------------------#
         self.patch_embed3 = OverlapPatchEmbed(patch_size=3, stride=2, in_chans=embed_dims[1], embed_dim=embed_dims[2])
-        #-----------------------------------------------#
-        #   利用transformer模块进行特征提取
-        #   1024, 160 => 1024, 160
-        #-----------------------------------------------#
         cur += depths[1]
         self.block3 = nn.ModuleList(
             [
@@ -429,15 +392,8 @@ class MixVisionTransformer(nn.Module):
         #----------------------------------#
         #   block4
         #----------------------------------#
-        #-----------------------------------------------#
-        #   对输入图像进行分区，并下采样
-        #   32, 32, 160 => 16, 16, 256 => 256, 256
-        #-----------------------------------------------#
         self.patch_embed4 = OverlapPatchEmbed(patch_size=3, stride=2, in_chans=embed_dims[2], embed_dim=embed_dims[3])
-        #-----------------------------------------------#
-        #   利用transformer模块进行特征提取
-        #   256, 256 => 256, 256
-        #-----------------------------------------------#
+
         cur += depths[2]
         self.block4 = nn.ModuleList(
             [
@@ -512,58 +468,6 @@ class MixVisionTransformer(nn.Module):
         outs.append(x)
 
         return outs
-
-class mit_b0(MixVisionTransformer):
-    def __init__(self, pretrained = False):
-        super(mit_b0, self).__init__(
-            embed_dims=[32, 64, 160, 256], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
-            qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[2, 2, 2, 2], sr_ratios=[8, 4, 2, 1],
-            drop_rate=0.0, drop_path_rate=0.1)
-        if pretrained:
-            print("Loading backbone weights.....")
-            self.load_state_dict(torch.load(r"C:\WORKS\Master_Thesis\Codes\backbone_weights\segformer_b0_backbone_weights.pth", weights_only=True), strict=False)
-            print("Loaded backbone weights")
-
-
-class mit_b1(MixVisionTransformer):
-    def __init__(self, pretrained = False):
-        super(mit_b1, self).__init__(
-            embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
-            qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[2, 2, 2, 2], sr_ratios=[8, 4, 2, 1],
-            drop_rate=0.0, drop_path_rate=0.1)
-        if pretrained:
-            print("Load backbone weights")
-            self.load_state_dict(torch.load("model_data/segformer_b1_backbone_weights.pth"), strict=False)
-
-class mit_b2(MixVisionTransformer):
-    def __init__(self, pretrained = False):
-        super(mit_b2, self).__init__(
-            embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
-            qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 4, 6, 3], sr_ratios=[8, 4, 2, 1],
-            drop_rate=0.0, drop_path_rate=0.1)
-        if pretrained:
-            print("Load backbone weights")
-            self.load_state_dict(torch.load(r"C:\WORKS\Master_Thesis\Codes\backbone_weights\segformer_b2_backbone_weights.pth", weights_only=True), strict=False)
-
-class mit_b3(MixVisionTransformer):
-    def __init__(self, pretrained = False):
-        super(mit_b3, self).__init__(
-            embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
-            qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 4, 18, 3], sr_ratios=[8, 4, 2, 1],
-            drop_rate=0.0, drop_path_rate=0.1)
-        if pretrained:
-            print("Load backbone weights")
-            self.load_state_dict(torch.load("model_data/segformer_b3_backbone_weights.pth"), strict=False)
-
-class mit_b4(MixVisionTransformer):
-    def __init__(self, pretrained = False):
-        super(mit_b4, self).__init__(
-            embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
-            qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 8, 27, 3], sr_ratios=[8, 4, 2, 1],
-            drop_rate=0.0, drop_path_rate=0.1)
-        if pretrained:
-            print("Load backbone weights")
-            self.load_state_dict(torch.load("model_data/segformer_b4_backbone_weights.pth"), strict=False)
 
 class mit_b5(MixVisionTransformer):
     def __init__(self, pretrained = False):

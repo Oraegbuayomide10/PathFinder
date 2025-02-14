@@ -1,7 +1,4 @@
-# dataloader
-
 import os
-
 import cv2
 import numpy as np
 import torch
@@ -113,7 +110,7 @@ class SegmentationDataset(Dataset):
         image   = cvtColor(image)
         label   = Image.fromarray(np.array(label))
         #------------------------------#
-        #   获得图像的高宽与目标高宽
+        #   Get the height and width of the image and the target height and width
         #------------------------------#
         iw, ih  = image.size
         h, w    = input_shape
@@ -134,7 +131,7 @@ class SegmentationDataset(Dataset):
             return new_image, new_label
 
         #------------------------------------------#
-        #   对图像进行缩放并且进行长和宽的扭曲
+        #   Resize the image and apply distortion to its height and width
         #------------------------------------------#
         new_ar = iw/ih * self.rand(1-jitter,1+jitter) / self.rand(1-jitter,1+jitter)
         scale = self.rand(0.5, 2)
@@ -148,7 +145,7 @@ class SegmentationDataset(Dataset):
         label = label.resize((nw,nh), Image.NEAREST)
         
         #------------------------------------------#
-        #   翻转图像
+        #   flip the image
         #------------------------------------------#
         flip = self.rand()<.5
         if flip: 
@@ -156,7 +153,7 @@ class SegmentationDataset(Dataset):
             label = label.transpose(Image.FLIP_LEFT_RIGHT)
         
         #------------------------------------------#
-        #   将图像多余的部分加上灰条
+        #   Add gray bars to the excess parts of the image
         #------------------------------------------#
         dx = int(self.rand(0, w-nw))
         dy = int(self.rand(0, h-nh))
@@ -169,14 +166,14 @@ class SegmentationDataset(Dataset):
 
         image_data      = np.array(image, np.uint8)
         #------------------------------------------#
-        #   高斯模糊
+        #   Gaussian Blur
         #------------------------------------------#
         blur = self.rand() < 0.25
         if blur: 
             image_data = cv2.GaussianBlur(image_data, (5, 5), 0)
 
         #------------------------------------------#
-        #   旋转
+        #   Rotate
         #------------------------------------------#
         rotate = self.rand() < 0.25
         if rotate: 
@@ -187,17 +184,17 @@ class SegmentationDataset(Dataset):
             label       = cv2.warpAffine(np.array(label, np.uint8), M, (w, h), flags=cv2.INTER_NEAREST, borderValue=(0))
 
         #---------------------------------#
-        #   对图像进行色域变换
-        #   计算色域变换的参数
+        #   Perform color space transformation
+        #   Calculate the parameters for color space transformation
         #---------------------------------#
         r               = np.random.uniform(-1, 1, 3) * [hue, sat, val] + 1
         #---------------------------------#
-        #   将图像转到HSV上
+        #   Convert the image to HSV color space
         #---------------------------------#
         hue, sat, val   = cv2.split(cv2.cvtColor(image_data, cv2.COLOR_RGB2HSV))
         dtype           = image_data.dtype
         #---------------------------------#
-        #   应用变换
+        #   Apply the transformation
         #---------------------------------#
         x       = np.arange(0, 256, dtype=r.dtype)
         lut_hue = ((x * r[0]) % 180).astype(dtype)
@@ -228,3 +225,75 @@ def seg_dataset_collate(batch):
     con_3 = torch.from_numpy(np.array(con_3))#.long()
     seg_labels  = torch.from_numpy(np.array(seg_labels)).type(torch.FloatTensor)
     return images, pngs,con_1,con_3, seg_labels
+
+
+
+
+def get_image_paths(root_dir: str, dataset_name: str, extension: str = '*.jpg', recursive: bool = False) -> List[str]:
+    """
+    Utility function to fetch all image paths from a specified dataset directory.
+
+    Args:
+    - dataset_root (str): Root directory of the dataset.
+    - dataset_name (str): Name of the dataset (e.g., 'DeepGlobe', 'Spacenet').
+    - extension (str): File extension to match (default is '*.jpg').
+    - recursive (bool): Whether to search subdirectories (default is False).
+
+    Returns:
+    - List[str]: List of image file paths.
+    """
+    dataset_path = os.path.join(root_dir, dataset_name)
+    return glob.glob(os.path.join(dataset_path, '**', extension), recursive=recursive)
+
+
+
+def split_data(image_list: List[str], validation_size: int) -> (List[str], List[str]):
+    """
+    Splits the dataset into training and validation sets.
+
+    Args:
+    - image_list (List[str]): List of image file paths.
+    - validation_size (int): Number of images to be used for validation.
+
+    Returns:
+    - (List[str], List[str]): A tuple containing training and validation image lists.
+    """
+    return image_list[:validation_size], image_list[validation_size:]
+
+
+
+def prepare_datasets(root_dir: str) -> dict:
+    """
+    Prepares the dataset splits for training and validation.
+
+    Returns:
+    - dict: Dictionary containing the training and validation splits for each dataset.
+
+    Example:
+    ```python
+    datasets = prepare_datasets(root_dir)
+    print(datasets['deepglobe']['train'][:5])  # Prints the first 5 images from DeepGlobe training set
+    print(datasets['spacenet_k']['val'][:5])  # Prints the first 5 images from Spacenet Khartoum validation set
+    ```
+    """
+    datasets = {
+        'deepglobe': ('DeepGlobe', '*.jpg', False, 500),
+        'spacenet_k': ('Spacenet/Khartoum', '*.tif', True, 125),
+        'spacenet_p': ('Spacenet/Paris', '*.tif', True, 125),
+        'spacenet_s': ('Spacenet/Shanghai', '*.tif', True, 125),
+        'spacenet_v': ('Spacenet/Vegas', '*.tif', True, 125),
+        'whu': ('WHU', '*.jpg', False, 1000)
+    }
+
+    train_val_split = {}
+
+    for dataset_key, (dataset_name, extension, recursive, val_size) in datasets.items():
+        all_images = get_image_paths(root_dir, dataset_name, extension, recursive)
+        val_images, train_images = split_data(all_images, val_size)
+        
+        train_val_split[dataset_key] = {
+            'train': train_images,
+            'val': val_images
+        }
+    
+    return train_val_split

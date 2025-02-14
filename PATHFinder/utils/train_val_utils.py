@@ -82,71 +82,34 @@ def train_one_epoch(model, dataloader, optimizer,
         # zero out all gradients
         optimizer.zero_grad()
         
-        # if f16 is used for training
-        if use_f16:
-            with torch.amp.autocast(device):
+        # Forward pass
+        outputs, r1, r3 = model(imgs)
 
-                # Forward pass
-                outputs, r1, r3 = model(imgs)
+        # MIoU loss for plot
+        MIoU_loss = MIoU(outputs, pngs, num_classes=2).item()
 
-                 # MIoU loss for plot
-                MIoU_loss = MIoU(outputs, pngs, num_classes=2).item()
-
-
-                # Main loss (CE or Focal)
-                if focal_loss:
-                    loss = Focal_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
-                else:
-                    loss = CE_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
-
-                # Dice Loss if specified
-                if dice_loss:
-                    dice = Dice_loss(outputs, labels)
-                    loss += dice
-
-                with torch.no_grad():
-                    # f-score between output and labels- this score is just for visualisation and not use in backpropagation
-                    f_score_value = f_score(outputs, labels).item()
-                   
-
-
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-
+        # Main loss (CE or Focal)
+        if focal_loss:
+            loss = Focal_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
         else:
-            # Forward pass
-            outputs, r1, r3 = model(imgs)
+            loss = CE_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
 
-            # MIoU loss for plot
-            MIoU_loss = MIoU(outputs, pngs, num_classes=2).item()
+        # Dice Loss if specified
+        if dice_loss:
+            dice = Dice_loss(outputs, labels)
+            loss = loss + dice
 
-            # Main loss (CE or Focal)
-            if focal_loss:
-                loss = Focal_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
-            else:
-                loss = CE_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
-                # loss = 0.8 * loss # according to the spacenet model
+        # Contrastive losses
+        c1_loss = ConLoss(r1, con_1)
+        c3_loss = ConLoss(r3, con_3)
 
-            # Dice Loss if specified
-            # if dice_loss:
-            #     dice = Dice_loss(outputs, labels)
-            #     loss = loss + dice
-
-            # Contrastive losses
-            # c1_loss = ConLoss(r1, con_1)
-            # c3_loss = ConLoss(r3, con_3)
-
-            # Total loss with lad factor
-            # loss = loss + 0.4 * (0.6 * c3_loss + 0.4 * c1_loss)
-            # loss = loss + 0.7 * (0.7 * c3_loss + 0.3 * c1_loss) # my own conloss  
+        #Total loss with lad factor
+        loss = loss + lad * (0.7 * c3_loss + 0.3 * c1_loss) # my own conloss  
 
 
-
-
-            # Backpropagation
-            loss.backward()
-            optimizer.step()
+        # Backpropagation
+        loss.backward()
+        optimizer.step()
 
 
         total_loss += loss.item()
@@ -212,21 +175,19 @@ def validate_one_epoch(model, dataloader, device, cls_weights,
             else:
                 loss = CE_Loss(outputs, pngs, cls_weights=weights, num_classes=num_classes)
 
-            # # Dice Loss if specified
-            # if dice_loss:
-            #     dice = Dice_loss(outputs, labels)
-            #     loss += dice
+            # Dice Loss if specified
+            if dice_loss:
+                dice = Dice_loss(outputs, labels)
+                loss += dice
 
 
-            # # Contrastive losses
-            # c1_loss = ConLoss(r1, con_1)
-            # c3_loss = ConLoss(r3, con_3)
+            # Contrastive losses
+            c1_loss = ConLoss(r1, con_1)
+            c3_loss = ConLoss(r3, con_3)
 
-            # # Total loss with lad factor
-            # loss += lad * (0.6 * c3_loss + 0.4 * c1_loss)
+            # Total loss with lad factor
+            loss = loss + lad * (0.7 * c3_loss + 0.3 * c1_loss) # my own conloss  
 
-       
-   
 
             val_loss += loss.item()
             val_MIoU += MIoU_loss
@@ -309,8 +270,7 @@ def train_and_validate(model, train_loader, val_loader,
                                                     focal_loss=focal_loss,
                                                     dice_loss=dice_loss,
                                                     lad=lad,
-            
-
+        
                                                     )
             
 

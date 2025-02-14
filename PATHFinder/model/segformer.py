@@ -30,9 +30,6 @@ class SELayer(nn.Module):
     
 
 
-    
-
-
 
 
 class Connect(nn.Module):
@@ -132,8 +129,7 @@ class SegFormerHead(nn.Module):
             k=1,
         )
         self.con = Connect(num_classes,9,embedding_dim)
-        # self.linear_pred    = nn.Conv2d(embedding_dim, num_classes, kernel_size=1)
-        # self.dropout        = nn.Dropout2d(dropout_ratio)
+    
     
     def forward(self, inputs):
         c1, c2, c3, c4 = inputs
@@ -154,12 +150,7 @@ class SegFormerHead(nn.Module):
 
         _c = self.linear_fuse(torch.cat([_c4, _c3, _c2, _c1], dim=1))
 
-
         seg, con0, con1 = self.con(_c)
-
-
-        # x = self.dropout(_c)
-        # x = self.linear_pred(x)
 
         return seg, con0, con1
 

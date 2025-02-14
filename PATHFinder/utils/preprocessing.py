@@ -3,6 +3,10 @@ from PIL import Image
 import os
 import json
 from tqdm import tqdm
+import glob
+from typing import List
+
+
 
 def cvtColor(image):
     """
@@ -25,11 +29,6 @@ def preprocess_input(image):
     """
     image -= np.array([123.675, 116.28, 103.53], np.float32)
     image /= np.array([58.395, 57.12, 57.375], np.float32)
-
-
-    # deepglobe, spacenet and WHU mean and std
-    # image -= np.array([93.842, 94.793, 84.236], np.float32)
-    # image /= np.array([35.962, 30.410, 28.513], np.float32)
 
     return image
 
@@ -110,3 +109,10 @@ def saves_computed_stats(mean_channels, std_channels, dir):
     output_path = os.path.join(dir, output_file)
     with open(output_path, "w") as f:
         json.dump(channel_stats, f, indent=4)
+
+
+
+
+
+
+
