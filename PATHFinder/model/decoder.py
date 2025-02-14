@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.functional import max_pool2d
-from backbone import mit_b0, mit_b1, mit_b2, mit_b3,mit_b4, mit_b5
+from encoder(segformer) import mit_b5
 
 
 
@@ -155,19 +155,13 @@ class SegFormerHead(nn.Module):
         return seg, con0, con1
 
 class SegFormer(nn.Module):
-    def __init__(self, num_classes = 21, phi = 'b0', pretrained = False):
+    def __init__(self, num_classes = 21, phi = 'b5', pretrained = False):
         super(SegFormer, self).__init__()
-        self.in_channels = {
-            'b0': [32, 64, 160, 256], 'b1': [64, 128, 320, 512], 'b2': [64, 128, 320, 512],
-            'b3': [64, 128, 320, 512], 'b4': [64, 128, 320, 512], 'b5': [64, 128, 320, 512],
+        self.in_channels = {'b5': [64, 128, 320, 512],
         }[phi]
-        self.backbone   = {
-            'b0': mit_b0, 'b1': mit_b1, 'b2': mit_b2,
-            'b3': mit_b3, 'b4': mit_b4, 'b5': mit_b5,
+        self.backbone   = {'b5': mit_b5,
         }[phi](pretrained)
-        self.embedding_dim   = {
-            'b0': 256, 'b1': 256, 'b2': 768,
-            'b3': 768, 'b4': 768, 'b5': 768,
+        self.embedding_dim   = {'b5': 768,
         }[phi]
         self.decode_head = SegFormerHead(num_classes, self.in_channels, self.embedding_dim)
 
