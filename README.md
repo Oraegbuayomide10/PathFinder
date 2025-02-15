@@ -14,12 +14,25 @@ PATHFinder  is an efficient road semantic segmentation model, as shown in Figure
 For install and data preparation, please follow the steps mentioned below.
 
 
-An example (works for me): ```CUDA 10.1``` and  ```pytorch 1.7.1``` 
+What works for me: ```CUDA 12.7``` and  ```pytorch 2.5.0``` 
 
 ```
-pip install torchvision==0.8.2
-pip install timm==0.3.2
-pip install mmcv-full==1.2.7
-pip install opencv-python==4.5.1.48
-cd SegFormer && pip install -e . --user
+git clone https://github.com/Oraegbuayomide10/PathFinder.git
+cd PATHFinder
+pip install -r requirements.txt
 ```
+
+## Evaluation
+
+Either download `trained weights (mit_b5 and PATHFinder)` manually:
+ [google drive](https://drive.google.com/drive/folders/13hKk38Ib0EepBvHSf3Xon16YsqAUWtlZ)  
+
+OR 
+automatically download `trained weights (mit_b5 and PATHFinder)` using the `download_weights.py` file
+
+Using the `download_weights.py` file
+
+
+
+
+Example: evaluate ```SegFormer-B1``` on ```ADE20K```:

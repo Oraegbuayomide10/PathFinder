@@ -2,6 +2,7 @@ import gdown
 import os
 from typing import Literal
 import subprocess
+import argparse
 
 def Download_Weights(
                      model: Literal['PATHFinder', 'SegFormer'] = 'PATHFinder'
@@ -35,4 +36,22 @@ def Download_Weights(
         )
 
     else:
-        raise ValueError('The')
+       raise ValueError('The specified model is not supported. Choose either "PATHFinder" or "SegFormer"')
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Download pretrained model weights.')
+    parser.add_argument(
+        '--model',
+        type=str,
+        choices = ['PATHFinder', 'SegFormer'],
+        default = 'PATHFinder',
+        help='The name of the pretrained model\'s weight to download (default: PATHFinder).'
+    )
+
+    args = parser.parse_args()
+
+    Download_Weights(model=args.model)
+
+
