@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.functional import max_pool2d
-from encoder(segformer) import mit_b5
+from encoder import mit_b5
 
 
 

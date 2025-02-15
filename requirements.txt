@@ -1,0 +1,11 @@
+gdown==5.2.0
+matplotlib==3.10.0
+numba==0.60.0
+numpy==2.2.3
+opencv_python==4.10.0.84
+pandas==2.2.3
+Pillow==11.1.0
+plotly==5.24.1
+scipy==1.15.1
+torch==2.5.0
+tqdm==4.65.2
