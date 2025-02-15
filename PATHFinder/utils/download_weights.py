@@ -28,7 +28,7 @@ def Download_Weights(
             output = os.path.join(root_dir, 'weights', 'PATHFinder.pth')
         )
 
-    elif model.lower() == 'segformer':
+    elif model.lower() == 'mit_b5':
         os.makedirs(os.path.join(root_dir, 'weights'), exist_ok=True)
         gdown.download(
             url = 'https://drive.google.com/uc?id=1gvq5WJmVtoG0qYLLBrP-GyNVJEuXjgRx',
@@ -45,13 +45,13 @@ if __name__ == "__main__":
     parser.add_argument(
         '--model',
         type=str,
-        choices = ['PATHFinder', 'SegFormer'],
-        default = 'PATHFinder',
+        choices = ['pathfinder', 'mit_b5'],
+        default = 'pathfinder',
         help='The name of the pretrained model\'s weight to download (default: PATHFinder).'
     )
 
     args = parser.parse_args()
 
-    Download_Weights(model=args.model)
+    Download_Weights(model=args.model.lower())
 
 

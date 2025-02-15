@@ -24,15 +24,31 @@ pip install -r requirements.txt
 
 ## Evaluation
 
-Either download `trained weights (mit_b5 and PATHFinder)` manually:
+Either download `trained weights (mit_b5 and PATHFinder)` manually to a folder named ```weights``` in the root directory:
  [google drive](https://drive.google.com/drive/folders/13hKk38Ib0EepBvHSf3Xon16YsqAUWtlZ)  
 
 OR 
-automatically download `trained weights (mit_b5 and PATHFinder)` using the `download_weights.py` file
 
-Using the `download_weights.py` file
+Automatically download `trained weights (mit_b5 and PATHFinder)` using the `download_weights.py` file
+
+#### Using the `download_weights.py` file (this automatically download the models weight to a folder named ```weights```):
+
+ 1. Download the ```mit_b5``` pretrained model 
+   
+        python PATHFinder/utils/download_weights.py --model mit_b5
+
+ 2. Download the ```PATHFinder``` pretrained model (PATHFinder or pathfinder is accepted as the name of the model)
+   
+        python PATHFinder/utils/download_weights.py --model pathfinder
 
 
+
+
+
+
+
+
+python PATHFinder/utils/download_weights.py --model pathfinder
 
 
 Example: evaluate ```SegFormer-B1``` on ```ADE20K```:
