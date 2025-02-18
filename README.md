@@ -41,11 +41,3 @@ Automatically download `trained weights of PATHFinder` using the `download_weigh
 
 
 
-
-
-
-
-python PATHFinder/utils/download_weights.py --model pathfinder
-
-
-Example: evaluate ```SegFormer-B1``` on ```ADE20K```:
