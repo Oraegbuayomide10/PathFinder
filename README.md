@@ -29,13 +29,10 @@ Either download `trained weights (mit_b5 and PATHFinder)` manually to a folder n
 
 OR 
 
-Automatically download `trained weights (mit_b5 and PATHFinder)` using the `download_weights.py` file
+Automatically download `trained weights of PATHFinder` using the `download_weights.py` file
 
 #### Using the `download_weights.py` file (this automatically download the models weight to a folder named ```weights```):
 
- 1. Download the ```mit_b5``` pretrained model 
-   
-        python PATHFinder/utils/download_weights.py --model mit_b5
 
  2. Download the ```PATHFinder``` pretrained model (PATHFinder or pathfinder is accepted as the name of the model)
    
