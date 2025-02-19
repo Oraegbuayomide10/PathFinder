@@ -68,47 +68,8 @@ def load_image_array(image_path):
     return np.array(jpg)
 
 
-def compute_img_mean_std(images_path):
-
-    channel_means = np.zeros(3)  # Blue, Green, Red, NIR, SWIR
-    channel_stds= np.zeros(3)  # Variance instead of std (std computed later)
-
-    for img_path in tqdm(images_path):
-        img = load_image_array(str(img_path))
-        for i in range(3):  # Iterate over the 5 channels
-            channel_means[i] += img[:, :, i].mean()
-            channel_stds[i] += (img[:, :, i]).std()  # Accumulate squared values for variance
-
-    # Finalize mean and standard deviation calculations
-    channel_means /= len(images_path)
-    channel_stds /= len(images_path)
-
-    return channel_means, channel_stds
 
 
-
-def saves_computed_stats(mean_channels, std_channels, dir):
-    blue_mean, green_mean, red_mean = mean_channels
-    blue_std, green_std, red_std = std_channels
-    # dictionary
-    channel_stats = {
-        "means": {
-            "blue_mean": blue_mean,
-            "green_mean": green_mean,
-            "red_mean": red_mean
-        },
-        "stds": {
-            "blue_std": blue_std,
-            "green_std": green_std,
-            "red_std": red_std
-        }
-    }
-
-    # Save to a JSON file
-    output_file = r"channel_statistics.json"
-    output_path = os.path.join(dir, output_file)
-    with open(output_path, "w") as f:
-        json.dump(channel_stats, f, indent=4)
 
 
 

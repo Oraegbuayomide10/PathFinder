@@ -25,7 +25,7 @@ def Download_Weights(
         os.makedirs(os.path.join(root_dir, 'weights'), exist_ok=True)
         gdown.download(
             url = 'https://drive.google.com/uc?id=10i5jFbHffoh0FWs61DduBKZV6DqmmwiY',
-            output = os.path.join(root_dir, 'weights', 'PATHFinder.pth')
+            output = os.path.join(root_dir, 'weights', 'pathfinder.pth')
         )
 
     elif model.lower() == 'mit_b5':
@@ -36,7 +36,8 @@ def Download_Weights(
         )
 
     else:
-       raise ValueError('The specified model is not supported. Choose either "PATHFinder" or "SegFormer"')
+       raise ValueError('The specified model is not supported. Choose either "PATHFinder" or "SegFormer". \
+        pathfinder or segformer is also supported')
 
 
 

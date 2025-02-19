@@ -1,4 +1,4 @@
-<h1 align="center" id="title">(Still Undergoing Updates) - PATHFinder: A Foundation Model for Road Mapping in Support of United Nations Humanitarian Affairs</h1>
+<h1 align="center" id="title">PATHFinder: A Foundation Model for Road Mapping in Support of United Nations Humanitarian Affairs</h1>
 
 
 This repository contains the official Pytorch implementation of training & evaluation code and the pretrained model for PATHFinder (Paper to be released soon).
@@ -29,10 +29,13 @@ Either download `trained weights (mit_b5 and PATHFinder)` manually to a folder n
 
 OR 
 
-Automatically download `trained weights of PATHFinder` using the `download_weights.py` file
+Automatically download `trained weights (mit_b5 and PATHFinder)` using the `download_weights.py` file
 
 #### Using the `download_weights.py` file (this automatically download the models weight to a folder named ```weights```):
 
+ 1. Download the ```mit_b5``` pretrained model 
+   
+        python PATHFinder/utils/download_weights.py --model mit_b5
 
  2. Download the ```PATHFinder``` pretrained model (PATHFinder or pathfinder is accepted as the name of the model)
    
@@ -41,3 +44,11 @@ Automatically download `trained weights of PATHFinder` using the `download_weigh
 
 
 
+
+
+
+
+python PATHFinder/utils/download_weights.py --model pathfinder
+
+
+Example: evaluate ```SegFormer-B1``` on ```ADE20K```:

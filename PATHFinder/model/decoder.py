@@ -154,8 +154,8 @@ class SegFormerHead(nn.Module):
 
         return seg, con0, con1
 
-class SegFormer(nn.Module):
-    def __init__(self, num_classes = 21, phi = 'b5', pretrained = False):
+class PATHFinder(nn.Module):
+    def __init__(self, num_classes = 2, phi = 'b5', pretrained = True):
         super(SegFormer, self).__init__()
         self.in_channels = {'b5': [64, 128, 320, 512],
         }[phi]
@@ -179,7 +179,7 @@ class SegFormer(nn.Module):
 
 
 if __name__ == '__main__':
-    model = SegFormer(2)
+    model = PATHFinder(2)
     input = torch.randn(1,3,512,512)
     out = model(input)
     for i in out:

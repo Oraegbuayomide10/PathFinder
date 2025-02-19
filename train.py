@@ -8,7 +8,7 @@ import torch.distributed as dist
 import torch.optim as optim
 from torch.utils.data import DataLoader
 
-from model.segformer import SegFormer
+from model.decoder import PATHFinder
 from utils.loss_optim_LR_utils import get_lr_scheduler, set_optimizer_lr, weights_init
 
 
@@ -180,7 +180,7 @@ def Train(
         min_lr = initial_lr * 0.01
 
         #---------------- define model
-        model = SegFormer(num_classes=2, phi='b5', pretrained=pretrained)
+        model = PATHFinder(num_classes=2, phi='b5', pretrained=pretrained)
 
         # only to be used when loading checkpoint
         checkpoint = torch.load('weights/PATHFinder_mit.pth', weights_only=True)
