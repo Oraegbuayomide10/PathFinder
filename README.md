@@ -7,6 +7,10 @@ This repository contains the official Pytorch implementation of training & evalu
 ![Python 3.10.5](https://img.shields.io/badge/python-3.10.5-green.svg)
 
 
+![logo](./assets/DeepGlobe.png)
+
+
+
 PATHFinder  is an efficient road semantic segmentation model, as shown in Figure 1, built on the simple yet powerful [SegFormer](https://arxiv.org/abs/2105.15203).
 
 ## Installation
@@ -33,11 +37,7 @@ Automatically download `trained weights (mit_b5 and PATHFinder)` using the `down
 
 #### Using the `download_weights.py` file (this automatically download the models weight to a folder named ```weights```):
 
- 1. Download the ```mit_b5``` pretrained model 
-   
-        python PATHFinder/utils/download_weights.py --model mit_b5
-
- 2. Download the ```PATHFinder``` pretrained model (PATHFinder or pathfinder is accepted as the name of the model)
+1. Download the ```PATHFinder``` pretrained model (PATHFinder or pathfinder is accepted as the name of the model)
    
         python PATHFinder/utils/download_weights.py --model pathfinder
 
@@ -45,10 +45,3 @@ Automatically download `trained weights (mit_b5 and PATHFinder)` using the `down
 
 
 
-
-
-
-python PATHFinder/utils/download_weights.py --model pathfinder
-
-
-Example: evaluate ```SegFormer-B1``` on ```ADE20K```:
