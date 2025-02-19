@@ -1,4 +1,4 @@
-<h1 align="center" id="title">PATHFinder: A Foundation Model for Road Mapping in Support of United Nations Humanitarian Affairs</h1>
+<h1 align="center" id="title">(Undergoing Updates) PATHFinder: A Foundation Model for Road Mapping in Support of United Nations Humanitarian Affairs</h1>
 
 
 This repository contains the official Pytorch implementation of training & evaluation code and the pretrained model for PATHFinder (Paper to be released soon).
