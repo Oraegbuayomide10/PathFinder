@@ -7,8 +7,12 @@ This repository contains the official Pytorch implementation of training & evalu
 ![Python 3.10.5](https://img.shields.io/badge/python-3.10.5-green.svg)
 
 
-![logo](./assets/DeepGlobe.png)
+![logo](./assets/redeepglobes.png)
 
+<h4 align='center' >Figure 1: Performance of PATHFinder on the DeepGlobe Dataset</h4>
+
+
+<br/>
 
 
 PATHFinder  is an efficient road semantic segmentation model, as shown in Figure 1, built on the simple yet powerful [SegFormer](https://arxiv.org/abs/2105.15203).
