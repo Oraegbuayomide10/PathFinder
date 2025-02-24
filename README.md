@@ -6,9 +6,6 @@ This repository contains the official Pytorch implementation of training & evalu
 
 ![Python 3.10.5](https://img.shields.io/badge/python-3.10.5-green.svg)
 
-
-
-
 <div style='text-align: center'>
        <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=100%> 
 </div>
@@ -17,6 +14,9 @@ This repository contains the official Pytorch implementation of training & evalu
 
 <h4 align='center' >Figure 1: Performance of PATHFinder on the DeepGlobe Dataset</h4>
 
+<br/>
+
+<p></p>
 
 <div style='text-align: center'>
 <img src="./assets/PATHFinder_Spacenet_Comparison.png" width="100%"> 
