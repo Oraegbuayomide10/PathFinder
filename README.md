@@ -10,7 +10,7 @@ This repository contains the official Pytorch implementation of training & evalu
 
 
 <div style='text-align: center'>
-       <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=1000> 
+       <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=100%> 
 </div>
 
 
@@ -19,7 +19,7 @@ This repository contains the official Pytorch implementation of training & evalu
 
 
 <div style='text-align: center'>
-<img src="./assets/PATHFinder_Spacenet_Comparison.png" width="1000"> 
+<img src="./assets/PATHFinder_Spacenet_Comparison.png" width="100%"> 
 </div>
 
 <h4 align='center' >Figure 2: Visual Performance of the PATHFinder on the Spacenet Dataset</h4>
