@@ -10,9 +10,11 @@ This repository contains the official Pytorch implementation of training & evalu
 <!-- ![logo](./assets/redeepglobes.png)  -->
 
 
-<div style='text-align: center'>
+<!-- <div style='text-align: center'>
+
+</div> -->
+
 <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=400> 
-</div>
 
 <h4 align='center' >Figure 1: Performance of PATHFinder on the DeepGlobe Dataset</h4>
 
