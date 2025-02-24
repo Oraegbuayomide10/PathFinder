@@ -10,7 +10,7 @@ This repository contains the official Pytorch implementation of training & evalu
 
 
 <div style='text-align: center'>
-       <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=700> 
+       <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=1000> 
 </div>
 
 
