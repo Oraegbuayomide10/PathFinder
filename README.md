@@ -27,7 +27,7 @@ This repository contains the official Pytorch implementation of training & evalu
 <br/>
 
 
-PATHFinder  is an efficient road semantic segmentation model, as shown in Figure 1, built on the simple yet powerful [SegFormer](https://arxiv.org/abs/2105.15203).
+PATHFinder is an efficient road semantic segmentation model, as shown in Figure 1, built on the simple yet powerful [SegFormer](https://arxiv.org/abs/2105.15203).
 
 ## Installation
 
