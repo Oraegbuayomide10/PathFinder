@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import numpy as np
 from typing import Literal
 import gdown
-
+from sklearn.metrics import confusion_matrix
 
 
 
@@ -233,7 +233,25 @@ def precision_recall_f1(predictions, targets, num_classes=2, eps=1e-7):
 
 
 
+def calculate_eval_metrics(predictions, labels, num_classes=2):
+    # Flatten the arrays
+    preds = predictions.flatten()
+    labels = labels.flatten()
 
+    # Compute confusion matrix
+    cm = confusion_matrix(labels, preds, labels=np.arange(num_classes))
+
+    # Compute mIoU and mDice
+    intersection = np.diag(cm)
+    union = cm.sum(axis=1) + cm.sum(axis=0) - intersection
+    iou = intersection / union
+    miou = np.nanmean(iou)  # Ignore NaN values (for classes that don't appear in the dataset)
+
+    # mDice
+    dice = (2 * intersection) / (cm.sum(axis=1) + cm.sum(axis=0))
+    mdice = np.nanmean(dice)
+
+    return miou, mdice
 
 
 

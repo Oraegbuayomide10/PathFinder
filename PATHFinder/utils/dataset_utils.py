@@ -8,7 +8,11 @@ from torch.utils.data.dataset import Dataset
 from numba import jit
 
 class SegmentationDataset(Dataset):
-    def __init__(self, images_list, input_shape, num_classes, train, dataset_path):
+    def __init__(self, images_list, labels_list = None, input_shape, num_classes, train, dataset_path=None):
+        """
+            labels_list is used when only using the SegmentationDataset class for evaluation
+        """
+       
         super(SegmentationDataset, self).__init__()
         self.images_list   = images_list
         self.length             = len(images_list)
@@ -21,16 +25,20 @@ class SegmentationDataset(Dataset):
         return self.length
 
     def __getitem__(self, index):
-        image_name = self.images_list[index]
-        splitted_name = image_name.split('_')
-        mask_name = splitted_name[0] + '_mask.png' 
-       
 
-        #-------------------------------#
-        #   Read the image from the file
-        #-------------------------------#
-        jpg         = Image.open(os.path.join(self.dataset_path, image_name))
-        png         = Image.open(os.path.join(self.dataset_path, mask_name))
+        if labels_list: # if using the segmentationDataset class for evaluation
+            jpg = Image.open(self.images_list[index]) 
+            png = Image.open(self.labels_list[index]) 
+
+        else:
+            image_name = self.images_list[index]
+            splitted_name = image_name.split('_')
+            mask_name = splitted_name[0] + '_mask.png' 
+            #-------------------------------#
+            #   Read the image from the file
+            #-------------------------------#
+            jpg         = Image.open(os.path.join(self.dataset_path, image_name))
+            png         = Image.open(os.path.join(self.dataset_path, mask_name))
 
 
         #-------------------------------#

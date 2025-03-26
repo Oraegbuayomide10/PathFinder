@@ -44,18 +44,19 @@ pip install -r requirements.txt
 
 ## Evaluation
 
-Either download `trained weights (mit_b5 and PATHFinder)` manually to a folder named ```weights``` in the root directory:
- [google drive](https://drive.google.com/drive/folders/13hKk38Ib0EepBvHSf3Xon16YsqAUWtlZ)  
+Either download manually to a folder named `weights` in the root directory the `PATHFinder trained weights` :
+ [google drive link to PATHFinder weights](https://drive.google.com/drive/folders/13hKk38Ib0EepBvHSf3Xon16YsqAUWtlZ)  
 
 OR 
 
-Automatically download `trained weights (mit_b5 and PATHFinder)` using the `download_weights.py` file
+Automatically download `PATHFinder trained weights` using the `download_weights.py` file
 
-#### Using the `download_weights.py` file (this automatically download the models weight to a folder named ```weights```):
+#### Using the `download_weights.py` file (this automatically download the models weight to a folder named `weights`):
 
-1. Download the ```PATHFinder``` pretrained model (PATHFinder or pathfinder is accepted as the name of the model)
+1. Download the `PATHFinder` pretrained model (PATHFinder or pathfinder is accepted as the name of the model)
    
         python PATHFinder/utils/download_weights.py --model pathfinder
+
 
 
 

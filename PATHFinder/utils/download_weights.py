@@ -5,7 +5,7 @@ import subprocess
 import argparse
 
 def Download_Weights(
-                     model: Literal['PATHFinder', 'SegFormer'] = 'PATHFinder'
+                     model: Literal['PATHFinder'] = 'PATHFinder'
 
                     ):
 
@@ -28,16 +28,9 @@ def Download_Weights(
             output = os.path.join(root_dir, 'weights', 'pathfinder.pth')
         )
 
-    elif model.lower() == 'mit_b5':
-        os.makedirs(os.path.join(root_dir, 'weights'), exist_ok=True)
-        gdown.download(
-            url = 'https://drive.google.com/uc?id=1gvq5WJmVtoG0qYLLBrP-GyNVJEuXjgRx',
-            output = os.path.join(root_dir, 'weights', 'mit_b5.pth')
-        )
-
     else:
-       raise ValueError('The specified model is not supported. Choose either "PATHFinder" or "SegFormer". \
-        pathfinder or segformer is also supported')
+       raise ValueError('The specified model is not supported. Choose "PATHFinder". \
+        pathfinder is also supported')
 
 
 
@@ -46,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--model',
         type=str,
-        choices = ['pathfinder', 'mit_b5'],
+        choices = ['pathfinder'],
         default = 'pathfinder',
         help='The name of the pretrained model\'s weight to download (default: PATHFinder).'
     )
