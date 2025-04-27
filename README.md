@@ -7,12 +7,12 @@ This repository contains the official Pytorch implementation of training & evalu
 ![Python 3.10.5](https://img.shields.io/badge/python-3.10.5-green.svg)
 
 <div style='justify-content: center; display:flex; text-align:center'>
-       <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=70%> 
+       <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=50%> 
 </div>
 
 
 
-<h4 align='center' >Figure 1: Performance of PATHFinder on the DeepGlobe Dataset</h4>
+<h4 align='left' >Figure 1: Performance of PATHFinder on the DeepGlobe Dataset</h4>
 
 <br/>
 
