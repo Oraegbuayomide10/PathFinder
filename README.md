@@ -7,7 +7,7 @@ This repository contains the official Pytorch implementation of training & evalu
 ![Python 3.10.5](https://img.shields.io/badge/python-3.10.5-green.svg)
 
 <div style='text-align: center'>
-       <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=100%> 
+       <img src="./assets/PATHFInder_DeepGlobe_Bench.png" width=50%> 
 </div>
 
 
@@ -101,7 +101,7 @@ Automatically download `PATHFinder trained weights` using the `download_weights.
 
 
 ### The evaluation process returns a maximum of 5 images of the model's predictions
-<div style='text-align: center; display:flex'>
+<div style='jusitfy-content: center; display:flex'>
        <img src="./assets/prediction_1.png" width=50%> 
        <img src="./assets/prediction_4.png" width=50%> 
 </div>
