@@ -91,7 +91,7 @@ Automatically download `PATHFinder trained weights` using the `download_weights.
        --labels_format png/tiff/jpeg 
 
 
-    ##### What works on my Windows PC
+    #### What works on my Windows PC
        
        python evaluate.py --model_checkpoint weights/pathfinder.pth `
        --images_dir C:/WORKS/Projects/images `
