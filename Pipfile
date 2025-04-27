@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+gdown = "==5.2.0"
+matplotlib = "==3.10.0"
+numba = "==0.60.0"
+numpy = "==1.26.4"
+opencv_python = "==4.6.0.66"
+pandas = "==2.2.3"
+Pillow = "==10.4.0"
+plotly = "==5.24.1"
+scipy = "==1.13.1"
+torch = "==2.5.0"
+torchvision = "==0.20.0"
+torchaudio = "==2.5.0"
+tqdm = "==4.67.1"
+scikit-learn = "==1.5.1"
+
+[requires]
+python_version = "3.10"
+name = "PATHFinder"
+
+[dev-packages]

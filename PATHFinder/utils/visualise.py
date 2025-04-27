@@ -1,7 +1,7 @@
-import matplotlib.pylot as plt
-import torch
+import matplotlib.pyplot as plt
 import torch.nn.functional as F
 from PIL import Image
+import numpy as np
 
 
 
@@ -9,12 +9,12 @@ def visualize_batch_predictions(all_predictions, all_labels, save_dir):
 
     all_predictions, all_labels = extend_preds(all_predictions, all_labels)
 
-    for index in range(5):
+    for index in range(4):
         pred_image = all_predictions[index]
         label = all_labels[index] 
         array = pred_image.astype(np.uint8)
         image = Image.fromarray(array * 255)
-        combine_images_matplotlib(pred_image, label, save_dir)
+        combine_images_matplotlib(image, label, save_dir + f'/prediction_{index+1}.png')
 
 
 
@@ -43,12 +43,11 @@ def extend_preds(batches_predictions, batches_labels):
 
     # for batches_predictions   
     for i in range(len(batches_predictions)):
-        for j in batches_predictions[i]:
-            all_preds.append(j)
+        all_preds.append(batches_predictions[i])
+           
 
     # for batches_labels   
     for i in range(len(batches_labels)):
-        for j in batches_labels[i]:
-            all_labels.append(j)
+        all_labels.append(batches_labels[i])
 
     return all_preds, all_labels

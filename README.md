@@ -1,4 +1,4 @@
-<h1 align="center" id="title">(Undergoing Updates) PATHFinder: A Foundation Model for Road Mapping in Support of United Nations Humanitarian Affairs</h1>
+<h2 align="center" id="title">PATHFinder: A Foundation Model for Road Mapping in Support of United Nations Humanitarian Affairs</h2>
 
 
 This repository contains the official Pytorch implementation of training & evaluation code and the pretrained model for PATHFinder (Paper to be released soon).
@@ -36,10 +36,21 @@ For install and data preparation, please follow the steps mentioned below.
 
 What works for me: ```CUDA 12.7``` and  ```pytorch 2.5.0``` 
 
+#### 1. Clone Repository
 ```
 git clone https://github.com/Oraegbuayomide10/PathFinder.git
-cd PATHFinder
-pip install -r requirements.txt
+```
+#### 2. Move into the directory
+```
+cd PATHFinder 
+```
+#### 3. Install dependencies using ```pipenv```
+```
+pipenv install
+```
+#### 4. Activate virtual environment using ```pipenv```
+```
+pipenv shell
 ```
 
 ## Evaluation
@@ -59,6 +70,38 @@ Automatically download `PATHFinder trained weights` using the `download_weights.
 
 
 
+2. Run an Evaluation of the ```PATHFinder``` model on a dataset
+   
+   A. If using ```Linux bash or macOS terminal```
+
+        python evaluate_model.py \
+        --model_checkpoint /path/to/your/checkpoint.pth \
+        --images_dir /path/to/images/ \
+        --labels_dir /path/to/annotations/ \
+        --images_format png/tiff/jpeg \
+        --labels_format png/tiff/jpeg 
+
+   B. If using ```Windows```
+
+       python evaluate_model.py `
+       --model_checkpoint /path/to/your/checkpoint.pth `
+       --images_dir /path/to/images/ `
+       --labels_dir /path/to/annotations/ `
+       --images_format png/tiff/jpeg `
+       --labels_format png/tiff/jpeg 
 
 
+    #### What works on my Windows PC
+       
+       python evaluate.py --model_checkpoint weights/pathfinder.pth `
+       --images_dir C:/WORKS/Projects/images `
+       --labels_dir C:/WORKS/Projects/labels `
+       --images_format jpg `
+       --labels_format png
 
+
+### The evaluation process returns a maximum of 5 images of the model's predictions
+<div style='text-align: center; display:flex'>
+       <img src="./assets/prediction_1.png" width=50%> 
+       <img src="./assets/prediction_4.png" width=50%> 
+</div>

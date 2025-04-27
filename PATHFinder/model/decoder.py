@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.functional import max_pool2d
-from encoder import mit_b5
+from PATHFinder.model.encoder import mit_b5
 
 
 
@@ -156,7 +156,7 @@ class SegFormerHead(nn.Module):
 
 class PATHFinder(nn.Module):
     def __init__(self, num_classes = 2, phi = 'b5', pretrained = True):
-        super(SegFormer, self).__init__()
+        super(PATHFinder, self).__init__()
         self.in_channels = {'b5': [64, 128, 320, 512],
         }[phi]
         self.backbone   = {'b5': mit_b5,
