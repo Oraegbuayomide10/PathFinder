@@ -39,6 +39,9 @@ What works for me: ```CUDA 12.7``` and  ```pytorch 2.5.0```
 ```
 git clone https://github.com/Oraegbuayomide10/PathFinder.git
 cd PathFinder
+python -m venv venv  
+venv/Scripts/activate (if using windows)
+source venv/bin/activate (if using MAC or Linux)
 pip install -r requirements.txt
 ```
 
