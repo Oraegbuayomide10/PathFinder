@@ -100,7 +100,7 @@ Automatically download `PATHFinder trained weights` using the `download_weights.
        --labels_format png
 
 
-### The evaluation process returns a maximum of 5 images of the model's predictions
+#### The evaluation process returns a maximum of 5 images of the model's predictions
 <div style='jusitfy-content: center; display:flex'>
        <img src="./assets/prediction_1.png" width=50%> 
        <img src="./assets/prediction_4.png" width=50%> 
