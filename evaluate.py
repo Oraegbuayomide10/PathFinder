@@ -35,7 +35,7 @@ def evaluate_model(model, dataloader, device='cuda'):
 
 def load_model(checkpoint_path, device='cuda'):
     """
-        Loads models
+        Loads models into eval state
     """
     model = PATHFinder(num_classes=2)
     checkpoint = torch.load(checkpoint_path, weights_only=True, map_location=device)
@@ -49,18 +49,18 @@ def load_model(checkpoint_path, device='cuda'):
 def main(args):
 
     # load custom dataset
-    model = load_model(args.checkpoint, args.device)
+    model = load_model(args.model_checkpoint, args.device)
 
     # extract the images and annotations from the provided directory
     # args.imgs_format - e.g tiff |  args.labels_format # e.g png, jpeg,
     # eval_images & eval_labels are lists
-    eval_images = sorted(glob.glob(os.path.join(args.imgs_dir, f"*{args.imgs_format}")))
+    eval_images = sorted(glob.glob(os.path.join(args.images_dir, f"*{args.images_format}")))
     eval_labels = sorted(glob.glob(os.path.join(args.labels_dir, f"*{args.labels_format}")))
 
     # Dataset and Dataloader
     eval_dataset = SegmentationDataset(images_list = eval_images, 
                         labels_list = eval_labels,
-                        input_shape = args.input_shape,
+                         
                         num_classes = 2,
                         train=False
                         )
@@ -83,10 +83,12 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(descriptions="Evaluate PATHFinder model.")
-    parser.add_argument("--model-checkpoint", required=True, help="Path to the model checkpoint file.")
-    parser.add_argument("--images-dir", required=True, help="Directory containing images to evaluate.")
-    parser.add_argument("--labels-dir", required=True, help="Directory containing ground truth annotations.")
-    parser.add_argument("--batch-size", type=int, default=4, help="Directory containing ground truth annotations.")
+    parser.add_argument("--model_checkpoint", required=True, help="Path to the model checkpoint file.")
+    parser.add_argument("--images_dir", required=True, help="Directory containing images to evaluate.")
+    parser.add_argument("--labels_dir", required=True, help="Directory containing ground truth annotations.")
+    parser.add_argument("--images_format", required=True, help="Directory containing ground truth annotations.")
+    parser.add_argument("--labels_format", required=True, help="Directory containing ground truth annotations.")
+    parser.add_argument("--batch_size", type=int, default=4, help="Directory containing ground truth annotations.")
     parser.add_argument("--device", type=str, default='cuda', help="Device on which computation will run - `cuda` or `cpu`. Default is `cuda`")
 
     args = parser.parse_args()
