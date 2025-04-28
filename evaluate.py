@@ -121,7 +121,7 @@ if __name__ == "__main__":
         "--device",
         type=str,
         default="cpu",
-        help="Device on which computation will run - `cuda` or `cpu`. Default is `cuda`",
+        help="Device on which computation will run - `cuda` or `cpu`. Default is `cpu`",
     )
 
     args = parser.parse_args()

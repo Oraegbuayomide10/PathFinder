@@ -70,8 +70,8 @@ Automatically download `PATHFinder trained weights` using the `download_weights.
 
 
 
-2. Run an Evaluation of the ```PATHFinder``` model on a dataset
-   
+2. Run an Evaluation of the ```PATHFinder``` model on a dataset. A detailed description of both ```Required``` and ```Optional``` the Command-Line Arguments are present in the evaluate.py file. Below are the ```Required``` Command-Line Arguments.
+
    A. If using ```Linux bash or macOS terminal```
 
         python evaluate_model.py \
